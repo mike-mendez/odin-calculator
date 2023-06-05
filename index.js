@@ -1,46 +1,147 @@
 // OPERATIONS
 
-const add = (num1, num2) => num1 + num2;
-const subtract = (num1, num2) => num1 - num2;
-const multiply = (num1, num2) => num1 * num2;
-const divide = (num1, num2) => num1 / num2;
+const operations = {
+  add: (num1, num2) => num1 + num2,
+  subtract: (num1, num2) => num1 - num2,
+  multiply: (num1, num2) => num1 * num2,
+  divide: (num1, num2) => num1 / num2,
+};
 
-const operate = (operator, num1, num2) => operator(num1, num2);
-
-// TEST
-// console.log(operate(add, 3, 7));
+const calculate = (operation, num1, num2) => {
+  if (operation in operations) {
+    const result = operations[operation](num1, num2);
+    return result;
+  }
+  return null;
+};
+// 12 + 7 - 5 * 3 = 42
 
 // NUMBER HOLDERS
 let number1 = null;
 let number2 = null;
 
+let operatorActive = false;
+
+// DISPLAY
 const numberDisplay = document.getElementById("number-display");
-console.log(numberDisplay.innerText);
+
+// BUTTONS
+const numberButtons = document.querySelectorAll(".numbers");
+const operatorButtons = Array.from(
+  document.querySelectorAll(".operators")
+).filter((element) => element.id != "equals");
+const equalsButton = document.getElementById("equals");
+const clearButton = document.getElementById("clear");
 
 // Populate display when number button is pressed
-const numberButtons = document.querySelectorAll(".numbers");
-
 numberButtons.forEach((element) => {
   element.addEventListener("click", () => {
-    if (numberDisplay.innerText == "0") {
+    if (operatorActive) {
       numberDisplay.innerText = element.innerText;
-      (number1 == null)
-        ? (number1 = numberDisplay.innerText)
-        : (number2 = numberDisplay.innerText);
+      number2 = numberDisplay.innerText;
+      operatorActive = false;
     } else {
-      numberDisplay.innerText += element.innerText;
-      (number1 == null)
-        ? (number1 = numberDisplay.innerText)
-        : (number2 = numberDisplay.innerText);
+      if (numberDisplay.innerText != "0" || element.innerText == ".") {
+        // ACCUMULATE DISPLAY
+        numberDisplay.innerText += element.innerText;
+
+        // CHECK IF OPERATOR IS ACTIVE
+        operatorButtons.filter((element) =>
+          element.classList.contains("button-active")
+        ).length
+          ? (number2 = numberDisplay.innerText)
+          : (number1 = numberDisplay.innerText);
+      } else {
+        // IF DISPLAY HAS 0 ONLY
+
+        // REPLACE DISPLAY
+        numberDisplay.innerText = element.innerText;
+
+        operatorButtons.filter((element) =>
+          element.classList.contains("button-active")
+        ).length
+          ? (number2 = numberDisplay.innerText)
+          : (number1 = numberDisplay.innerText);
+      }
     }
+    // IF DISPLAY DOESN'T HAVE 0 OR IF DECIMAL IS PRESSED
 
     console.log("Number 1", number1);
     console.log("Number 2", number2);
   });
 });
 
+// Operators
+operatorButtons.forEach((element) => {
+  element.addEventListener("click", () => {
+    if (number1 != null) {
+      if (
+        operatorButtons.filter((btn) => btn.classList.contains("button-active"))
+          .length
+      ) {
+        console.log("hi");
+        const activeOperator = operatorButtons.filter((element) =>
+          element.classList.contains("button-active")
+        )[0].dataset.operation;
+        console.log(activeOperator);
+
+        let result = calculate(
+          activeOperator,
+          Number(number1),
+          Number(number2)
+        );
+        numberDisplay.innerText = result;
+        number1 = numberDisplay.innerText;
+        number2 = null;
+      }
+      if (!element.classList.contains("button-active")) {
+        operatorButtons.forEach((btn) => btn.classList.remove("button-active"));
+      }
+      element.classList.add("button-active");
+      operatorActive = true;
+    }
+  });
+});
+
 // Clear display when clear button is pressed
-const clearButton = document.getElementById("clear");
 clearButton.addEventListener("click", () => {
   numberDisplay.innerText = "0";
+  operatorButtons.forEach((element) => {
+    element.classList.remove("button-active");
+  });
+  operatorActive = false;
+  number1 = null;
+  number2 = null;
 });
+
+// Evaluate operation when equals button is pressed
+equalsButton.addEventListener("click", () => {
+  const activeOperator = operatorButtons.filter((element) =>
+    element.classList.contains("button-active")
+  )[0].dataset.operation;
+  let result = calculate(activeOperator, Number(number1), Number(number2));
+  numberDisplay.innerText = result;
+
+  operatorButtons.forEach((element) => {
+    element.classList.remove("button-active");
+  });
+  operatorActive = false;
+
+  number1 = numberDisplay.innerText;
+  number2 = null;
+});
+
+// if (numberDisplay.innerText == "0") {
+//   numberDisplay.innerText = element.innerText;
+//   operatorButtons.filter((btn) => btn.classList.contains("button-active"))
+//     .length
+//     ? (number2 = numberDisplay.innerText)
+//     : (number1 = numberDisplay.innerText);
+// } else { // IF DISPLAY HAS NUMBER OTHER THAN 0
+//   numberDisplay.innerText += element.innerText;
+//   if (operatorButtons.filter((btn) => btn.classList.contains("button-active"))) {
+//     numberDisplay.innerText = element.innerText;
+//   }
+//     ? (number2 = numberDisplay.innerText)
+//     : (number1 = numberDisplay.innerText);
+// }
