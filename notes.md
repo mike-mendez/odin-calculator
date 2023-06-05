@@ -26,3 +26,7 @@
 - Maximize Button: #28c840
 - Minimize Button: #ffbc2e
 - Close Button: #ff6057
+
+## Operations
+
+12 + 7 - 5 \* 3 = should yield 42
