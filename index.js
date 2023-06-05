@@ -33,9 +33,14 @@ const operatorButtons = Array.from(
 const equalsButton = document.getElementById("equals");
 const clearButton = document.getElementById("clear");
 
+const backspaceButton = document.getElementById("backspace");
+
 // Populate display when number button is pressed
 numberButtons.forEach((element) => {
   element.addEventListener("click", () => {
+    if (element.innerText == "." && numberDisplay.innerText.includes("."))
+      return;
+
     if (operatorActive) {
       numberDisplay.innerText = element.innerText;
       number2 = numberDisplay.innerText;
@@ -103,6 +108,15 @@ operatorButtons.forEach((element) => {
   });
 });
 
+// Remove last number when backspace is pressed
+backspaceButton.addEventListener("click", () => {
+  if (numberDisplay.innerText.length == 1) {
+    numberDisplay.innerText = "0";
+  } else {
+    numberDisplay.innerText = numberDisplay.innerText.slice(0, -1);
+  }
+});
+
 // Clear display when clear button is pressed
 clearButton.addEventListener("click", () => {
   numberDisplay.innerText = "0";
@@ -119,6 +133,10 @@ equalsButton.addEventListener("click", () => {
   const activeOperator = operatorButtons.filter((element) =>
     element.classList.contains("button-active")
   )[0].dataset.operation;
+  if (activeOperator == "divide" && number2 == "0") {
+    numberDisplay.innerText = "STOP THAT SHIT";
+    return
+  }
   let result = calculate(activeOperator, Number(number1), Number(number2));
   numberDisplay.innerText = result;
 
@@ -130,18 +148,3 @@ equalsButton.addEventListener("click", () => {
   number1 = numberDisplay.innerText;
   number2 = null;
 });
-
-// if (numberDisplay.innerText == "0") {
-//   numberDisplay.innerText = element.innerText;
-//   operatorButtons.filter((btn) => btn.classList.contains("button-active"))
-//     .length
-//     ? (number2 = numberDisplay.innerText)
-//     : (number1 = numberDisplay.innerText);
-// } else { // IF DISPLAY HAS NUMBER OTHER THAN 0
-//   numberDisplay.innerText += element.innerText;
-//   if (operatorButtons.filter((btn) => btn.classList.contains("button-active"))) {
-//     numberDisplay.innerText = element.innerText;
-//   }
-//     ? (number2 = numberDisplay.innerText)
-//     : (number1 = numberDisplay.innerText);
-// }
